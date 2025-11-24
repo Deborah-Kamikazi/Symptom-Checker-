@@ -10,7 +10,7 @@ const RAPID_API_URL = 'https://cars-by-api-ninjas.p.rapidapi.com/v1/cars';
 
 /**
  * Fetches car data based on filters.
- * @param {Object} filters - Filter criteria (make, year, drive, fuel, query).
+ * @param {Object} filters - Filter criteria (make, year, model, trim).
  * @returns {Promise<Array>} - A promise that resolves to an array of car objects.
  */
 export async function fetchCars(filters = {}) {
@@ -20,11 +20,18 @@ export async function fetchCars(filters = {}) {
 
     if (!RAPID_API_KEY || RAPID_API_KEY === 'YOUR_RAPID_API_KEY_HERE') {
         console.warn('No API Key provided. Falling back to mock data.');
-        return fetchMockCars(query);
+        return fetchMockCars(filters);
     }
 
     try {
-        const response = await fetch(`${RAPID_API_URL}?model=${query}`, {
+        // Construct API URL with parameters
+        const url = new URL(RAPID_API_URL);
+        if (filters.make) url.searchParams.append('make', filters.make);
+        if (filters.year) url.searchParams.append('year', filters.year);
+        if (filters.model) url.searchParams.append('model', filters.model);
+        if (filters.trim) url.searchParams.append('trim', filters.trim);
+
+        const response = await fetch(url.toString(), {
             method: 'GET',
             headers: {
                 'X-RapidAPI-Key': RAPID_API_KEY,
@@ -172,41 +179,33 @@ function fetchMockCars(filters) {
             const filtered = mockCars.filter(car => {
                 const basic = car.basic;
                 
-                // Query (Search Text)
-                if (filters.query) {
-                    const lowerQuery = filters.query.toLowerCase();
-                    const matchesQuery = basic.make.toLowerCase().includes(lowerQuery) || 
-                                         basic.model.toLowerCase().includes(lowerQuery);
-                    if (!matchesQuery) return false;
-                }
-
                 // Make
                 if (filters.make && basic.make !== filters.make) return false;
 
                 // Year
                 if (filters.year && basic.year.toString() !== filters.year) return false;
 
-                // Drive Type
-                if (filters.drive && !basic.drive_type.includes(filters.drive)) return false;
-
-                // Transmission
-                if (filters.transmission) {
-                    const trans = basic.transmission.toLowerCase();
-                    const filterTrans = filters.transmission.toLowerCase();
-                    if (filterTrans === 'automatic' && (trans.includes('manual') || trans.includes('stick'))) return false;
-                    if (filterTrans === 'manual' && !trans.includes('manual')) return false;
-                    // Default assumption: if not manual, it's likely automatic/CVT
-                    if (filterTrans === 'automatic' && !trans.includes('automatic') && !trans.includes('cvt')) return false; 
+                // Model (from search bar)
+                if (filters.model) {
+                    const lowerModel = filters.model.toLowerCase();
+                    if (!basic.model.toLowerCase().includes(lowerModel)) return false;
                 }
 
-                // Fuel Type
-                if (filters.fuel && basic.recommended_fuel !== filters.fuel) return false;
+                // Trim
+                if (filters.trim) {
+                    const lowerTrim = filters.trim.toLowerCase();
+                    if (!basic.trim.toLowerCase().includes(lowerTrim)) return false;
+                }
 
                 return true;
             });
 
             // Check if any filter is active
-            const isFiltering = filters.query || filters.make || filters.year || filters.drive || filters.transmission || filters.fuel;
+            const isFiltering = 
+                (filters.model && filters.model.trim() !== '') || 
+                (filters.make && filters.make !== '') || 
+                (filters.year && filters.year !== '') || 
+                (filters.trim && filters.trim.trim() !== '');
 
             // If no filters are active, limit to 6 cars. Otherwise, show all matching results.
             if (!isFiltering) {

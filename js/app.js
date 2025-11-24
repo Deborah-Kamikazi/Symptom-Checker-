@@ -7,21 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardGrid = document.getElementById('card-grid');
     const filterMake = document.getElementById('filter-make');
     const filterYear = document.getElementById('filter-year');
-    const filterDrive = document.getElementById('filter-drive');
-    const filterTransmission = document.getElementById('filter-transmission');
-    const filterFuel = document.getElementById('filter-fuel');
+    const filterTrim = document.getElementById('filter-trim');
 
-    // Initialize Search Bar
-    initSearchBar('search-input', 'search-btn', (query) => {
-        handleSearch({ query });
+    // Initialize Search Bar (Model Search)
+    initSearchBar('search-input', 'search-btn', (model) => {
+        handleSearch({ model });
     });
 
     // Filter Event Listeners
-    const filters = [filterMake, filterYear, filterDrive, filterTransmission, filterFuel];
+    const filters = [filterMake, filterYear, filterTrim];
     filters.forEach(filter => {
-        filter.addEventListener('change', () => {
-            const currentQuery = document.getElementById('search-input').value.trim();
-            handleSearch({ query: currentQuery });
+        // Use 'input' event for text fields to search as you type, 'change' for selects
+        const eventType = filter.tagName === 'INPUT' ? 'input' : 'change';
+        filter.addEventListener(eventType, () => {
+            handleSearch();
         });
     });
 
@@ -33,12 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Gather all filter values
         const activeFilters = {
-            query: criteria.query || '',
+            model: criteria.model || document.getElementById('search-input').value.trim(),
             make: filterMake.value,
             year: filterYear.value,
-            drive: filterDrive.value,
-            transmission: filterTransmission.value,
-            fuel: filterFuel.value
+            trim: filterTrim.value.trim()
         };
 
         const cars = await fetchCars(activeFilters);

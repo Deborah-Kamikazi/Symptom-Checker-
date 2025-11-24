@@ -152,7 +152,7 @@ button:active {
     margin: 0 auto;
 }
 
-select {
+select, .filters-row input[type="text"] {
     padding: 0.6rem 1rem;
     border-radius: 50px;
     border: 1px solid var(--glass-border);
@@ -165,7 +165,16 @@ select {
     font-family: 'Outfit', sans-serif;
 }
 
-select:hover, select:focus {
+.filters-row input[type="text"] {
+    cursor: text;
+    width: 200px;
+}
+
+.filters-row input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+select:hover, select:focus, .filters-row input[type="text"]:focus {
     background: rgba(255, 255, 255, 0.25);
     border-color: var(--primary-color);
 }
