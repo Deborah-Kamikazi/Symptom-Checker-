@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterMake = document.getElementById('filter-make');
     const filterYear = document.getElementById('filter-year');
     const filterDrive = document.getElementById('filter-drive');
+    const filterTransmission = document.getElementById('filter-transmission');
     const filterFuel = document.getElementById('filter-fuel');
 
     // Initialize Search Bar
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Filter Event Listeners
-    const filters = [filterMake, filterYear, filterDrive, filterFuel];
+    const filters = [filterMake, filterYear, filterDrive, filterTransmission, filterFuel];
     filters.forEach(filter => {
         filter.addEventListener('change', () => {
             const currentQuery = document.getElementById('search-input').value.trim();
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             make: filterMake.value,
             year: filterYear.value,
             drive: filterDrive.value,
+            transmission: filterTransmission.value,
             fuel: filterFuel.value
         };
 
